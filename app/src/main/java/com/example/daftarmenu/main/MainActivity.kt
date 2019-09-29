@@ -31,14 +31,16 @@ class MainActivity : AppCompatActivity() {
 
         private val pages = listOf(
             MakananFragment.getInstance(),
-            MinumanFragment.getInstance()
+            MinumanFragment.getInstance(),
+            AddFragment.getInstance()
         )
 
         override fun getPageTitle(position: Int): CharSequence? {
             return when(position){
 
                 0 -> "Makanan"
-                else -> "Minuman"
+                1 -> "Minuman"
+                else -> "Tambah Data"
             }
         }
     }

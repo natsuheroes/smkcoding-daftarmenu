@@ -4,11 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.daftarmenu.R
 import com.example.daftarmenu.R.layout
-import com.example.daftarmenu.data.MenuModel
+import com.example.daftarmenu.adapter.RvAdapterMakanan
+import com.example.daftarmenu.data.MenuDB
+import com.example.daftarmenu.data.MenuMakananModel
 import kotlinx.android.synthetic.main.makanan_fragment.rv_makanan
 
 class MakananFragment : Fragment() {
@@ -19,8 +22,9 @@ class MakananFragment : Fragment() {
         }
     }
 
-    val dataMakanan = mutableListOf<MenuModel>()
-    val rvAdapter = RvAdapter(dataMakanan)
+    val dataMakanan = mutableListOf<MenuMakananModel>()
+    val mRvAdapterMakanan = RvAdapterMakanan(dataMakanan)
+    var db: MenuDB? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -31,33 +35,29 @@ class MakananFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        rv_makanan.adapter = rvAdapter
+        rv_makanan.adapter = mRvAdapterMakanan
         rv_makanan.layoutManager = LinearLayoutManager(context)
 
-        addDummyData()
+        db = MenuDB.getInstance(context!!)
+        getMenuMakanan()
     }
 
-    private fun addDummyData() {
-        dataMakanan.add(MenuModel(
-                "Mie-miean",
-                "Rp. 5.000",
-                R.drawable.mie
-            )
-        )
-        dataMakanan.add(MenuModel(
-                "Sayur-sayuran",
-                "Rp. 3.000",
-                R.drawable.sayur
-            )
-        )
-        dataMakanan.add(MenuModel(
-                "Nasi",
-                "Rp. 2.000",
-                R.drawable.nasi
-            )
-        )
+    private fun getMenuMakanan() {
+        db?.menuDao()?.ambilMenuMakanan()?.observe(this, Observer { hasil ->
+            when(hasil.size==0){
+                true ->{
+                    Toast.makeText(context,"Data Makanan masih kosong",
+                        Toast.LENGTH_SHORT).show()
+                }
+                false ->{
+                    dataMakanan.clear()
+                    dataMakanan.addAll(hasil)
+                    mRvAdapterMakanan.notifyDataSetChanged()
 
+                }
+            }
 
-        rvAdapter.notifyDataSetChanged()
+        })
+
     }
 }
